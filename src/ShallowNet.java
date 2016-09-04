@@ -22,13 +22,13 @@ public class ShallowNet {
 	private NeuralNetwork m_nn = null;
 	
 	// number of training epochs
-	private static int TRAINING_EPOCHS = 25;
+	private static int TRAINING_EPOCHS = 10;
 
 	// let's initialize our network
 	public void init() {
 		
 		// let's create and initialize our NeuralNetwork container
-		m_nn = new NeuralNetwork(1.0);
+		m_nn = new NeuralNetwork();
 		m_nn.initNetwork();
 		
 	}
@@ -78,7 +78,7 @@ public class ShallowNet {
 					correct++;				
 				
 				// dump a status of the network once in a while
-				if(i % 3000 == 0) {
+				if(i % 5000 == 0) {
 					System.out.println((100.0 * (double)i / 60000.0) + "%... ");
 				}
 			}
@@ -169,6 +169,21 @@ public class ShallowNet {
 		}
 		
 	}
+
+	// output our numbers to a file
+	private void imagineNumbers() {
+	
+		m_nn.reverseActivateImage("imagine_0.png", 0);
+		m_nn.reverseActivateImage("imagine_1.png", 1);
+		m_nn.reverseActivateImage("imagine_2.png", 2);
+		m_nn.reverseActivateImage("imagine_3.png", 3);
+		m_nn.reverseActivateImage("imagine_4.png", 4);
+		m_nn.reverseActivateImage("imagine_5.png", 5);
+		m_nn.reverseActivateImage("imagine_6.png", 6);
+		m_nn.reverseActivateImage("imagine_7.png", 7);
+		m_nn.reverseActivateImage("imagine_8.png", 8);
+		m_nn.reverseActivateImage("imagine_9.png", 9);
+	}
 	
 	// print a vector
 	private void printVector(double[] vector) {
@@ -201,6 +216,9 @@ public class ShallowNet {
 		// alright, ready to test!
 		System.out.println("Testing ShallowNet");
 		sn.testNetwork();
+		
+		// now let's see what the machine imagines
+		sn.imagineNumbers();
 		
 		// wrap up the show, we're done
 		System.out.println("Complete - quitting now");

@@ -82,12 +82,12 @@ public class Neuron {
 		m_weights[w] = val;
 	}
 	
-	public void randomize() {
+	public void randomize(double N) {
 		
-		//m_bias = Math.random() / 10.0;
+		m_bias = Math.random() / N;
 		if(m_weights != null) {
 			for(int i = 0; i < m_weights.length; i++) {
-				m_weights[i] = 0.00001 + (Math.random() / 1000.0);//0.25 + (Math.random() / 2.0);
+				m_weights[i] = (0.1 / N) + (Math.random() / N);
 			}
 		}
 	}

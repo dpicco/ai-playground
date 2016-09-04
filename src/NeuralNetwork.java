@@ -1,3 +1,9 @@
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+
 /**
  * 
  */
@@ -19,7 +25,7 @@ public class NeuralNetwork {
 	private static final int OUTPUT_NEURONS = 10;
 	
 	// size of the hidden layer of neurons, confined to 1 layer here
- 	private static final int HIDDEN1_NEURONS = 1000;
+ 	private static final int HIDDEN1_NEURONS = 20;
 	
 	// our input layer of neurons
 	private Neuron[] inputLayer = null;
@@ -27,7 +33,7 @@ public class NeuralNetwork {
 	private Neuron[] outputLayer = null;
 	
 	// our learning rate for the network
-	private double learnN = 0.25;
+	private double learnN;
 
 	// our activation function
 	private static double sigmoid(double z) {
@@ -91,10 +97,10 @@ public class NeuralNetwork {
 			Neuron n = outputLayer[i];
 			
 			// the error with respect to the activated output
-			double dEdA = -(vT[i] - n.getOutput());
 			// the error with respect to the net output
-//			double dEdN = sigmoid(n.getOutput()) * sigmoid(1.0 - n.getOutput());
+			double dEdA = -(vT[i] - n.getOutput());
 			double dEdN = n.getOutput() * (1.0 - n.getOutput());
+
 			// total error on the net side of this neuron
 			n.setError(dEdA * dEdN);
 		}
@@ -105,15 +111,14 @@ public class NeuralNetwork {
 			
 			Neuron n = hiddenLayer[i];
 					
-			// the error on this neuron is the sum of all the errors on the outputs relative to their connections
+			// the error on this neuron is the sum of all the errors on the outputs relative to their connections	
+			// convert to net error before we apply
 			double dE = 0.0;
 			for(Neuron m:outputLayer) { 
 				dE += m.getError() * m.getWeight(i);
 			}
-			
-			// convert to net error and apply
-//			dE *= sigmoid(n.getOutput()) * sigmoid(1.0 - n.getOutput());
 			dE *= n.getOutput() * (1.0 - n.getOutput());
+
 			n.setError(dE);
 		}
 		
@@ -145,15 +150,15 @@ public class NeuralNetwork {
 	}
 	
 	// called as part of setup to randomize the initial state of the network
-	private void randomizeNetwork() {
+	private void randomizeNetwork(double N) {
 		
 		// skip the input layer randomization as it's not initialized or needed
 		
 		for(Neuron n:hiddenLayer) {
-			n.randomize();
+			n.randomize(N);
 		}
 		for(Neuron n:outputLayer) {
-			n.randomize();
+			n.randomize(N);
 		}
 	}
 
@@ -210,8 +215,12 @@ public class NeuralNetwork {
 	 * 
 	 */
 	public NeuralNetwork() {
+		
+		learnN = 1.0 / Math.sqrt(HIDDEN1_NEURONS);
 	}
 	
+	// call with a learning rate specified.  If default constuctor called, 
+	// learning rate is 0.25
 	public NeuralNetwork(double N) {
 		learnN = N;
 	}
@@ -239,7 +248,7 @@ public class NeuralNetwork {
 		attachLayers(hiddenLayer, outputLayer);
 
 		// randomize the initial weights and biases in our network
-		randomizeNetwork();
+		randomizeNetwork((double)(inputLayer.length * hiddenLayer.length));
 	
 		
 		// OKAY!  Neural Network is setup and ready for action.  Time to start feeding it images
@@ -274,6 +283,59 @@ public class NeuralNetwork {
 		
 		// let's make our guess from our Output Neurons output values
 		return(labelFromVector(vectorFromOutput()));
+	}
+	
+	// reverse activate a network to generate an image of it's 'memory'
+	public void reverseActivateImage(String file, int output) {
+
+		// let's set the right values on the output neurons
+		for(int i = 0; i < outputLayer.length; i++) {
+			
+			if(i == output) {
+				outputLayer[i].setOutput(1.0);
+			}
+			else {
+				outputLayer[i].setOutput(0.0);
+			}
+		}
+		
+		// okay, now let's back propagate this signal based on connections
+		for(int i = 0; i < hiddenLayer.length; i++) {
+			
+			double hOutput = 0.0;
+			for(int j = 0; j < outputLayer.length; j++) {
+				hOutput += outputLayer[j].getOutput() * outputLayer[j].getWeight(i);
+			}
+			hiddenLayer[i].setOutput(hOutput);
+		}
+		
+		// now, let's set the input signals based on these relationships
+		for(int i = 0; i < inputLayer.length; i++) {
+			
+			double iOutput = 0.0;
+			for(int j = 0; j < hiddenLayer.length; j++) {
+				iOutput += hiddenLayer[j].getOutput() * hiddenLayer[j].getWeight(i);
+			}
+			inputLayer[i].setOutput(iOutput);
+		}
+		
+		// Create a new buffered image
+		BufferedImage bi = new BufferedImage(28, 28, BufferedImage.TYPE_BYTE_GRAY);
+		for(int y = 0; y < 28; y++) {
+			for(int x = 0; x < 28; x++) {
+				int color = (int)(inputLayer[y*28+x].getOutput() * 255.0);
+				if(color < 0) color = 0;
+				if(color > 255) color = 255;
+				bi.setRGB(x, y, (color << 16) | (color << 8) | (color));
+			}
+		}
+		
+		try {
+			File outputFile = new File(file);
+			ImageIO.write(bi, "png", outputFile);
+		}
+		catch(IOException e) {
+		}
 	}
 	
 	// dump a status of the network
