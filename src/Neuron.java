@@ -84,10 +84,10 @@ public class Neuron {
 	
 	public void randomize() {
 		
-		m_bias = Math.random() / 3.0;
+		//m_bias = Math.random() / 10.0;
 		if(m_weights != null) {
 			for(int i = 0; i < m_weights.length; i++) {
-				m_weights[i] = 0.1 + (Math.random() * 0.8);
+				m_weights[i] = 0.00001 + (Math.random() / 1000.0);//0.25 + (Math.random() / 2.0);
 			}
 		}
 	}

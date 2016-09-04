@@ -19,7 +19,7 @@ public class NeuralNetwork {
 	private static final int OUTPUT_NEURONS = 10;
 	
 	// size of the hidden layer of neurons, confined to 1 layer here
-	private static final int HIDDEN1_NEURONS = 50;
+ 	private static final int HIDDEN1_NEURONS = 1000;
 	
 	// our input layer of neurons
 	private Neuron[] inputLayer = null;
@@ -27,7 +27,7 @@ public class NeuralNetwork {
 	private Neuron[] outputLayer = null;
 	
 	// our learning rate for the network
-	private double learnN = 0.5;
+	private double learnN = 0.25;
 
 	// our activation function
 	private static double sigmoid(double z) {
@@ -93,7 +93,8 @@ public class NeuralNetwork {
 			// the error with respect to the activated output
 			double dEdA = -(vT[i] - n.getOutput());
 			// the error with respect to the net output
-			double dEdN = sigmoid(n.getOutput()) * sigmoid(1.0 - n.getOutput());
+//			double dEdN = sigmoid(n.getOutput()) * sigmoid(1.0 - n.getOutput());
+			double dEdN = n.getOutput() * (1.0 - n.getOutput());
 			// total error on the net side of this neuron
 			n.setError(dEdA * dEdN);
 		}
@@ -111,7 +112,8 @@ public class NeuralNetwork {
 			}
 			
 			// convert to net error and apply
-			dE *= sigmoid(n.getOutput()) * sigmoid(1.0 - n.getOutput());
+//			dE *= sigmoid(n.getOutput()) * sigmoid(1.0 - n.getOutput());
+			dE *= n.getOutput() * (1.0 - n.getOutput());
 			n.setError(dE);
 		}
 		
