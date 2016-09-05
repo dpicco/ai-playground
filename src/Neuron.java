@@ -84,11 +84,34 @@ public class Neuron {
 	
 	public void randomize(double N) {
 		
-		m_bias = Math.random() / N;
+		// This is a method that generally works well
+/*		m_bias = Math.random() / N;
 		if(m_weights != null) {
 			for(int i = 0; i < m_weights.length; i++) {
 				m_weights[i] = (0.1 / N) + (Math.random() / N);
 			}
 		}
+*/
+		
+		m_bias = (0.1 + (2 * Math.random())) * getRandomSign(); 
+		if(m_weights != null) {
+			for(int i = 0; i < m_weights.length; i++) {
+				m_weights[i] = (0.1 + (2 * Math.random())) * getRandomSign();
+			}
+		}
+	}
+	
+	public double getRandomSign() {
+		
+		double sign = Math.random() - 0.5;
+		if(sign > -0.1 && sign < 0)
+			sign -= 0.1;
+		else if(sign < 0.1 && sign > 0)
+			sign += 0.1;
+		else if(sign == 0)
+			sign -= (0.2 + Math.random());
+		
+		return sign / Math.abs(sign);
 	}
 }
+

@@ -1,3 +1,4 @@
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +26,7 @@ public class NeuralNetwork {
 	private static final int OUTPUT_NEURONS = 10;
 	
 	// size of the hidden layer of neurons, confined to 1 layer here
- 	private static final int HIDDEN1_NEURONS = 20;
+ 	private static final int HIDDEN1_NEURONS = 10;
 	
 	// our input layer of neurons
 	private Neuron[] inputLayer = null;
@@ -248,7 +249,7 @@ public class NeuralNetwork {
 		attachLayers(hiddenLayer, outputLayer);
 
 		// randomize the initial weights and biases in our network
-		randomizeNetwork((double)(inputLayer.length * hiddenLayer.length));
+		randomizeNetwork((double)(inputLayer.length + hiddenLayer.length));
 	
 		
 		// OKAY!  Neural Network is setup and ready for action.  Time to start feeding it images
@@ -320,13 +321,14 @@ public class NeuralNetwork {
 		}
 		
 		// Create a new buffered image
-		BufferedImage bi = new BufferedImage(28, 28, BufferedImage.TYPE_BYTE_GRAY);
+		BufferedImage bi = new BufferedImage(28, 28, BufferedImage.TYPE_INT_ARGB);
 		for(int y = 0; y < 28; y++) {
 			for(int x = 0; x < 28; x++) {
 				int color = (int)(inputLayer[y*28+x].getOutput() * 255.0);
 				if(color < 0) color = 0;
 				if(color > 255) color = 255;
-				bi.setRGB(x, y, (color << 16) | (color << 8) | (color));
+				Color col = new Color(color, color, color);
+				bi.setRGB(x, y, col.getRGB());
 			}
 		}
 		

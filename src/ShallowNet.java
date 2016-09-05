@@ -17,20 +17,18 @@ public class ShallowNet {
 	private String trainingLabels = "MNIST/train-labels.idx1-ubyte";
 	private String testingImages = "MNIST/t10k-images.idx3-ubyte";
 	private String testingLabels = "MNIST/t10k-labels.idx1-ubyte";
-	
-	// our (shallow) neural network object
-	private NeuralNetwork m_nn = null;
+
+	// This is our multi-layer capable neural network object
+	private MLNeuralNetwork m_mlnn = null;
 	
 	// number of training epochs
-	private static int TRAINING_EPOCHS = 10;
+	private static int TRAINING_EPOCHS = 20;
 
 	// let's initialize our network
 	public void init() {
 		
 		// let's create and initialize our NeuralNetwork container
-		m_nn = new NeuralNetwork();
-		m_nn.initNetwork();
-		
+		m_mlnn = new MLNeuralNetwork(new int[]{28*28, 32, 16, 10}, 0.2);
 	}
 	
 	private void trainNetwork() {
@@ -70,15 +68,15 @@ public class ShallowNet {
 				byte label = (byte)fisLabel.read();
 
 				// now, set these up as the input neurons and train...
-				m_nn.trainNetwork(imageData, label);
+				m_mlnn.trainNetwork(imageData, label);
 
 				// show status
-				int guess = m_nn.labelFromVector(m_nn.vectorFromOutput());
+				int guess = m_mlnn.labelFromVector(m_mlnn.vectorFromOutput());
 				if(guess == label)
 					correct++;				
 				
 				// dump a status of the network once in a while
-				if(i % 5000 == 0) {
+				if(i % 6000 == 0) {
 					System.out.println((100.0 * (double)i / 60000.0) + "%... ");
 				}
 			}
@@ -141,11 +139,16 @@ public class ShallowNet {
 				byte label = (byte)fisLabel.read();
 
 				// now, set these up as the input neurons and train...
-				int guess = m_nn.testNetwork(imageData);
+				int guess = m_mlnn.testNetwork(imageData);
 
 				// show status
 				if(guess == label)
 					correct++;							
+
+				// dump a status of the network once in a while
+				if(i % 1000 == 0) {
+					System.out.println((100.0 * (double)i / 10000.0) + "%... ");
+				}
 			}
 			System.out.println("TEST RESULTS: " + correct + "/10,000 (" + (100.0 * (double)correct / 10000.0) + "%)");
 		}
@@ -173,16 +176,16 @@ public class ShallowNet {
 	// output our numbers to a file
 	private void imagineNumbers() {
 	
-		m_nn.reverseActivateImage("imagine_0.png", 0);
-		m_nn.reverseActivateImage("imagine_1.png", 1);
-		m_nn.reverseActivateImage("imagine_2.png", 2);
-		m_nn.reverseActivateImage("imagine_3.png", 3);
-		m_nn.reverseActivateImage("imagine_4.png", 4);
-		m_nn.reverseActivateImage("imagine_5.png", 5);
-		m_nn.reverseActivateImage("imagine_6.png", 6);
-		m_nn.reverseActivateImage("imagine_7.png", 7);
-		m_nn.reverseActivateImage("imagine_8.png", 8);
-		m_nn.reverseActivateImage("imagine_9.png", 9);
+		m_mlnn.reverseActivateImage("imagine_0.png", 0);
+		m_mlnn.reverseActivateImage("imagine_1.png", 1);
+		m_mlnn.reverseActivateImage("imagine_2.png", 2);
+		m_mlnn.reverseActivateImage("imagine_3.png", 3);
+		m_mlnn.reverseActivateImage("imagine_4.png", 4);
+		m_mlnn.reverseActivateImage("imagine_5.png", 5);
+		m_mlnn.reverseActivateImage("imagine_6.png", 6);
+		m_mlnn.reverseActivateImage("imagine_7.png", 7);
+		m_mlnn.reverseActivateImage("imagine_8.png", 8);
+		m_mlnn.reverseActivateImage("imagine_9.png", 9);
 	}
 	
 	// print a vector
@@ -209,12 +212,12 @@ public class ShallowNet {
 
 		// let's train our new network N times
 		for(int i = 0; i < TRAINING_EPOCHS; i++) {
-			System.out.println("Training ShallowNet, epoch " + i);
+			System.out.println("Training MLNeuralNetwork, epoch " + (i+1) + " of " + TRAINING_EPOCHS);
 			sn.trainNetwork();
 		}
 		
 		// alright, ready to test!
-		System.out.println("Testing ShallowNet");
+		System.out.println("Testing MLNeuralNetwork");
 		sn.testNetwork();
 		
 		// now let's see what the machine imagines
